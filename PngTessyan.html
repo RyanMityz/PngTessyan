@@ -11,7 +11,7 @@ body {
 }
 img {
   width: 100%;
-  transition: transform 0.12s ease, filter 0.12s ease;
+  transition: transform 0.08s ease, filter 0.08s ease;
 }
 </style>
 </head>
@@ -29,7 +29,7 @@ setInterval(() => {
     face.src = "piscar.png";
     setTimeout(()=> face.src="normal.png", 140);
   }
-}, 4200);
+}, 3800);
 
 // Microfone
 navigator.mediaDevices.getUserMedia({ audio:true }).then(stream=>{
@@ -46,11 +46,24 @@ navigator.mediaDevices.getUserMedia({ audio:true }).then(stream=>{
     analyser.getByteFrequencyData(data);
     let volume = data.reduce((a,b)=>a+b)/data.length;
 
-    if(volume > 28){
+    // normal fala
+    if(volume > 25 && volume <= 45){
       falando = true;
-      face.style.transform = "scale(1.045) translateY(-2px)";
-      face.style.filter = "brightness(1.25)";
-    } else {
+      face.style.transform = "scale(1.08) translateY(-4px)";
+      face.style.filter = "brightness(1.4) drop-shadow(0 0 12px white)";
+    }
+
+    // grito
+    else if(volume > 45){
+      falando = true;
+      let shakeX = (Math.random()*6)-3;
+      let shakeY = (Math.random()*6)-3;
+      face.style.transform = `scale(1.12) translate(${shakeX}px, ${shakeY}px)`;
+      face.style.filter = "brightness(1.8) drop-shadow(0 0 20px white)";
+    }
+
+    // silêncio
+    else{
       falando = false;
       face.style.transform = "scale(1)";
       face.style.filter = "brightness(1)";
