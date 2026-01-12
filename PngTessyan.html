@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PNGTuber</title>
+<style>
+body {
+  margin: 0;
+  background: transparent;
+  overflow: hidden;
+}
+img {
+  width: 100%;
+  transition: transform 0.12s ease, filter 0.12s ease;
+}
+</style>
+</head>
+<body>
+
+<img id="face" src="normal.png">
+
+<script>
+const face = document.getElementById("face");
+let falando = false;
+
+// Piscar automático
+setInterval(() => {
+  if (!falando) {
+    face.src = "piscar.png";
+    setTimeout(()=> face.src="normal.png", 140);
+  }
+}, 4200);
+
+// Microfone
+navigator.mediaDevices.getUserMedia({ audio:true }).then(stream=>{
+  const ctx = new AudioContext();
+  const mic = ctx.createMediaStreamSource(stream);
+  const analyser = ctx.createAnalyser();
+
+  mic.connect(analyser);
+  analyser.fftSize = 256;
+
+  const data = new Uint8Array(analyser.frequencyBinCount);
+
+  function loop(){
+    analyser.getByteFrequencyData(data);
+    let volume = data.reduce((a,b)=>a+b)/data.length;
+
+    if(volume > 28){
+      falando = true;
+      face.style.transform = "scale(1.045) translateY(-2px)";
+      face.style.filter = "brightness(1.25)";
+    } else {
+      falando = false;
+      face.style.transform = "scale(1)";
+      face.style.filter = "brightness(1)";
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+});
+</script>
+
+</body>
+</html>
